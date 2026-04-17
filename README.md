@@ -37,6 +37,7 @@ ags bundle app.tsx ~/path/to/ndvr-shell --gtk 4
 - [x] Now playing (Mpris)
 - [ ] Quick settings
   - [ ] Screen shot
+  - [ ] Screen record
   - [ ] Network
   - [ ] Bluetooth
   - [ ] Notifications
