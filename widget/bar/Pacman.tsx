@@ -2,6 +2,8 @@ import { createComputed } from 'ags'
 import { execAsync } from 'ags/process'
 import { createPoll } from 'ags/time'
 
+const POLL_SECONDS = 30
+
 function update() {
   execAsync(`ghostty -e paru`)
     .then(() => void 0)
@@ -9,7 +11,7 @@ function update() {
 }
 
 export default function Pacman() {
-  const updates = createPoll('0', 3000, `bash -c "(checkupdates ; paru -Qua) | wc -l"`)
+  const updates = createPoll('0', POLL_SECONDS * 1000, `bash -c "(checkupdates ; paru -Qua) | wc -l"`)
 
   const classes = createComputed(() => (updates() === '0' ? 'none' : 'cherry'))
   const label = createComputed(() => (updates() === '0' ? '󰇘' : ''))

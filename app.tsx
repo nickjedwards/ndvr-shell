@@ -20,7 +20,7 @@ app.start({
           <This this={app}>
             <Bar gdkmonitor={monitor} />
 
-            <Panel name="ndvr-left-panel" anchor={TOP | LEFT | BOTTOM} gdkmonitor={monitor}>
+            <Panel name={`ndvr-left-panel-${monitor.connector}`} anchor={TOP | LEFT | BOTTOM} gdkmonitor={monitor}>
               <box widthRequest={400} orientation={Gtk.Orientation.VERTICAL} spacing={7}>
                 <Calendar />
               </box>

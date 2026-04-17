@@ -1,8 +1,15 @@
 import { createState } from 'ags'
-import app from 'ags/gtk4/app'
 import { execAsync } from 'ags/process'
 import { createPoll } from 'ags/time'
 import GLib from 'gi://GLib'
+import Gtk from 'gi://Gtk?version=4.0'
+
+interface Props {
+  format: string
+  togglePanel: (button: Gtk.Button) => void
+}
+
+const POLL_DATE_SECONDS = 600 // 10 minutes
 
 const [inhibited, setInhibited] = createState(false)
 
@@ -17,8 +24,13 @@ function toggleIdle() {
     .catch((error) => console.error('idle inhibitor:', error))
 }
 
-export default function Clock({ format = '%H:%M' }: { format: string }) {
-  const time = createPoll('', 1000, () => GLib.DateTime.new_now_local().format(format) ?? '')
+export default function Clock({ format = '%H:%M', togglePanel }: Props) {
+  const time = createPoll('', 1000, () => GLib.DateTime.new_now_local().format(format) ?? '00:00')
+  const date = createPoll(
+    '',
+    POLL_DATE_SECONDS * 1000,
+    () => GLib.DateTime.new_now_local().format('%A, %B %d') ?? 'Today'
+  )
 
   return (
     <box class="idle-clock">
@@ -30,7 +42,7 @@ export default function Clock({ format = '%H:%M' }: { format: string }) {
         <label label={inhibited((v) => (v ? '󰅶' : '󰛊'))} />
       </button>
 
-      <button class="clock" onClicked={() => app.toggle_window('ndvr-left-panel')}>
+      <button class="clock" tooltipText={date} onClicked={togglePanel}>
         <label label={time} />
       </button>
     </box>

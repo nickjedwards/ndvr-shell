@@ -13,19 +13,28 @@ interface Props {
 }
 
 export default function Panel({ gdkmonitor, name, anchor, children }: Props) {
+  let win: Astal.Window
+
+  onCleanup(() => {
+    // Root components (windows) are not automatically destroyed.
+    // When the monitor is disconnected from the system, this callback
+    // is run from the parent <For> which allows us to destroy the window
+    win.destroy()
+  })
+
   return (
     <window
-      $={(self) => onCleanup(() => self.destroy())}
-      application={app}
+      $={(self) => (win = self)}
       visible={false}
-      name={name}
       namespace={name}
+      name={name}
       class="panel"
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.IGNORE}
       anchor={anchor}
       layer={Astal.Layer.OVERLAY}
       keymode={Astal.Keymode.ON_DEMAND}
+      application={app}
     >
       <Gtk.EventControllerKey
         onKeyPressed={(_, keyval) => {

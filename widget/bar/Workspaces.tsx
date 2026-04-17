@@ -1,4 +1,4 @@
-import { For, createBinding, createComputed, createMemo, createState } from 'ags'
+import { For, createBinding, createComputed, createMemo, createState, onCleanup } from 'ags'
 import Hyprland from 'gi://AstalHyprland'
 
 const TOOLTIPS = {
@@ -22,20 +22,20 @@ const ICONS = {
   10: '󰿬',
 } as const
 
-export default function Workspace() {
+export default function Workspaces() {
   const hyprland = Hyprland.get_default()
   const focusedWorkspace = createBinding(hyprland, 'focusedWorkspace')
   const clients = createBinding(hyprland, 'clients')
   const [urgents, setUrgents] = createState<Set<string>>(new Set())
 
-  hyprland.connect('urgent', (_, client) => {
+  const urgentId = hyprland.connect('urgent', (_, client) => {
     if (!client) return
 
     setUrgents((prev) => new Set(prev).add(client.address))
   })
 
-  hyprland.connect('notify::focused-workspace', () => {
-    const fws = focusedWorkspace()
+  const focusId = hyprland.connect('notify::focused-workspace', () => {
+    const fws = hyprland.focusedWorkspace
 
     if (!fws) return
 
@@ -43,15 +43,20 @@ export default function Workspace() {
       const next = new Set(prev)
 
       for (const { workspace, address } of clients()) {
-        if (workspace.id === fws.id) next.delete(address)
+        if (workspace?.id === fws.id) next.delete(address)
       }
 
       return next
     })
   })
 
+  onCleanup(() => {
+    hyprland.disconnect(urgentId)
+    hyprland.disconnect(focusId)
+  })
+
   const sort = (ws: Hyprland.Workspace[]) => {
-    const ids = new Set([1, 2, 3, 4, 5, ...ws.map((w) => w.id)])
+    const ids = new Set([1, 2, 3, 4, 5, ...ws.map((w) => w?.id)])
 
     return [...ids].sort((a, b) => a - b)
   }
@@ -64,9 +69,9 @@ export default function Workspace() {
 
           const classes = createMemo(() => {
             const list: string[] = []
-            const isActive = focusedWorkspace.as((fws) => fws.id === id)
-            const wsClients = clients().filter((c) => c.workspace.id === id)
-            const isUrgent = !isActive() && wsClients.some((c) => urgents().has(c.address))
+            const isActive = focusedWorkspace.as((fws) => fws?.id === id)
+            const wsClients = clients().filter((c) => c.workspace?.id === id)
+            const isUrgent = !isActive() && wsClients.some((c) => urgents().has(c?.address))
 
             if (isActive()) list.push('active')
             if (!wsClients.length) list.push('empty')
