@@ -13,8 +13,8 @@ function update() {
 export default function Pacman() {
   const updates = createPoll('0', POLL_SECONDS * 1000, `bash -c "(checkupdates ; paru -Qua) | wc -l"`)
 
-  const classes = createComputed(() => (updates() === '0' ? 'none' : 'cherry'))
-  const label = createComputed(() => (updates() === '0' ? '󰇘' : ''))
+  const classes = createComputed(() => (updates() === '0' ? 'ghost' : 'cherry'))
+  const label = createComputed(() => (updates() === '0' ? '󰊠' : ''))
 
   return (
     <box class="pacman">
