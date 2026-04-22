@@ -29,7 +29,7 @@ export default function Clock({ format = '%H:%M', togglePanel }: Props) {
   const date = createPoll(
     '',
     POLL_DATE_SECONDS * 1000,
-    () => GLib.DateTime.new_now_local().format('%A, %B %d') ?? 'Today'
+    () => GLib.DateTime.new_now_local().format('%A, %d %B') ?? 'Today'
   )
 
   return (
